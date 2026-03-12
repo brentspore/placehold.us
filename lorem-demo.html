@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorem Text Generator - placehold.us</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        .url-box {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            border-left: 4px solid #3498db;
+        }
+        
+        .url-box a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+        
+        .url-box a:hover {
+            text-decoration: underline;
+        }
+        
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .example-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .example-card code {
+            display: block;
+            background: white;
+            padding: 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+        
+        .example-card p {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .format-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .format-table th,
+        .format-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .format-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .format-table code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .note strong {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Lorem Text Generator</h1>
+        <p class="subtitle">Unique, AI-generated placeholder text for your designs • Just like our image placeholders</p>
+        
+        <div class="section">
+            <h2>Basic Usage</h2>
+            <p>Generate placeholder text with a simple URL pattern:</p>
+            
+            <div class="url-box">
+                <strong>placehold.us/lorem/[words|chars]/[number]/[style]</strong>
+            </div>
+            
+            <div class="example-grid">
+                <div class="example-card">
+                    <code>lorem/words/50</code>
+                    <p>50 words of casual text</p>
+                </div>
+                <div class="example-card">
+                    <code>lorem/chars/200</code>
+                    <p>200 characters</p>
+                </div>
+                <div class="example-card">
+                    <code>lorem/words/100/professional</code>
+                    <p>100 professional words</p>
+                </div>
+                <div class="example-card">
+                    <code>lorem/chars/500/technical</code>
+                    <p>500 technical characters</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Available Styles</h2>
+            <table class="format-table">
+                <tr>
+                    <th>Style</th>
+                    <th>Description</th>
+                    <th>Example URL</th>
+                </tr>
+                <tr>
+                    <td><strong>casual</strong></td>
+                    <td>Conversational, everyday language (default)</td>
+                    <td><code>lorem/words/50</code></td>
+                </tr>
+                <tr>
+                    <td><strong>professional</strong></td>
+                    <td>Business-appropriate, formal tone</td>
+                    <td><code>lorem/words/50/professional</code></td>
+                </tr>
+                <tr>
+                    <td><strong>technical</strong></td>
+                    <td>Tech jargon, documentation style</td>
+                    <td><code>lorem/words/50/technical</code></td>
+                </tr>
+                <tr>
+                    <td><strong>creative</strong></td>
+                    <td>Imaginative, storytelling language</td>
+                    <td><code>lorem/words/50/creative</code></td>
+                </tr>
+                <tr>
+                    <td><strong>formal</strong></td>
+                    <td>Academic, sophisticated writing</td>
+                    <td><code>lorem/words/50/formal</code></td>
+                </tr>
+                <tr>
+                    <td><strong>playful</strong></td>
+                    <td>Fun, lighthearted tone</td>
+                    <td><code>lorem/words/50/playful</code></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>Output Formats</h2>
+            <p>Add a format parameter to get different output types:</p>
+            
+            <table class="format-table">
+                <tr>
+                    <th>Format</th>
+                    <th>Description</th>
+                    <th>Example URL</th>
+                </tr>
+                <tr>
+                    <td><strong>text</strong></td>
+                    <td>Plain text (default)</td>
+                    <td><code>lorem/words/50/casual/text</code></td>
+                </tr>
+                <tr>
+                    <td><strong>json</strong></td>
+                    <td>JSON object with text property</td>
+                    <td><code>lorem/words/50/casual/json</code></td>
+                </tr>
+                <tr>
+                    <td><strong>html</strong></td>
+                    <td>Wrapped in &lt;p&gt; tags</td>
+                    <td><code>lorem/words/50/casual/html</code></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>Try It Out</h2>
+            
+            <div class="url-box">
+                <a href="lorem/words/50" target="_blank">lorem/words/50</a> - 50 casual words
+            </div>
+            
+            <div class="url-box">
+                <a href="lorem/chars/200/professional" target="_blank">lorem/chars/200/professional</a> - 200 professional characters
+            </div>
+            
+            <div class="url-box">
+                <a href="lorem/words/75/technical" target="_blank">lorem/words/75/technical</a> - 75 technical words
+            </div>
+            
+            <div class="url-box">
+                <a href="lorem/words/50/creative/json" target="_blank">lorem/words/50/creative/json</a> - 50 creative words as JSON
+            </div>
+        </div>
+        
+        <div class="note">
+            <strong>✨ Unique Every Time:</strong> Unlike traditional Lorem Ipsum, this generates fresh, unique text for each request using AI. The text is cached for performance, so the same URL will return the same text for a short period.
+        </div>
+        
+        <div class="section">
+            <h2>Use Cases</h2>
+            <ul style="list-style-position: inside; line-height: 2;">
+                <li>Design mockups and wireframes</li>
+                <li>Testing text layouts and typography</li>
+                <li>Prototyping content-heavy pages</li>
+                <li>API testing and development</li>
+                <li>Blog post templates</li>
+                <li>Email template design</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
