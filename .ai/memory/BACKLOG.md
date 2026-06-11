@@ -2,7 +2,7 @@
 
 Placehold.us is a developer placeholder image service — generates images by URL (e.g. `placehold.us/300x200`) for use in wireframes, prototypes, and designs.
 
-Not loaded into context every session — pull from here when picking up new work or reviewing project scope. If an item belongs across multiple projects, move it to `~/.ai/memory/BACKLOG.md` instead.
+Not loaded into context every session — pull from here when picking up new work or reviewing project scope. If an item belongs across multiple projects, move it to `~/.ai/memory/BACKLOG.md` instead. Work items only: decisions belong in `.ai/memory/DECISIONS.md`; active missions and directives belong in project memory that loads every session.
 
 ## Entry format
 
