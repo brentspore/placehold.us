@@ -4,6 +4,10 @@
   "main": "src/index.ts",
   "compatibility_date": "2025-01-01",
   "compatibility_flags": ["nodejs_compat"],
+  // Test subdomain on the real domain/TLS. The apex placehold.us is NOT here,
+  // so it keeps pointing at the old PHP server until cutover.
+  "routes": [{ "pattern": "beta.placehold.us", "custom_domain": true }],
+  "workers_dev": true,
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
