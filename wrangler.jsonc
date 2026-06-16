@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "placehold-us",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    // Static files (homepage, css, favicon, font) are served first when the
+    // path matches a file in ./public; everything else falls through to the
+    // Worker (the image generator). This replaces the old .htaccess routing.
+    "not_found_handling": "none"
+  },
+  "observability": {
+    "enabled": true
+  },
+  // Bundle the .ttf font into the Worker as an ArrayBuffer (used by resvg for
+  // raster rendering and by fontkit for SVG subsetting).
+  "rules": [{ "type": "Data", "globs": ["**/*.ttf"], "fallthrough": true }],
+  "vars": {
+    "GA_MEASUREMENT_ID": "G-73WR5GHTDB"
+  }
+}
