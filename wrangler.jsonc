@@ -6,7 +6,15 @@
   "compatibility_flags": ["nodejs_compat"],
   // Test subdomain on the real domain/TLS. The apex placehold.us is NOT here,
   // so it keeps pointing at the old PHP server until cutover.
-  "routes": [{ "pattern": "beta.placehold.us", "custom_domain": true }],
+  // beta.* is a dedicated custom domain; apex + www are zone routes that attach
+  // the Worker in front of the existing (already Cloudflare-proxied) DNS. The
+  // Worker serves everything itself, so the old PHP origin is never reached.
+  // Rollback = remove these two routes; DNS is untouched throughout.
+  "routes": [
+    { "pattern": "beta.placehold.us", "custom_domain": true },
+    { "pattern": "placehold.us/*", "zone_name": "placehold.us" },
+    { "pattern": "www.placehold.us/*", "zone_name": "placehold.us" }
+  ],
   "workers_dev": true,
   "assets": {
     "directory": "./public",
