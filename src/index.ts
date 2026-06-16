@@ -7,10 +7,15 @@
 import { parseRequest } from "./parse";
 import { render } from "./render";
 
+interface RateLimiter {
+  limit(options: { key: string }): Promise<{ success: boolean }>;
+}
+
 interface Env {
   ASSETS: Fetcher;
   GA_MEASUREMENT_ID?: string;
   GA_API_SECRET?: string;
+  RATE_LIMITER: RateLimiter;
 }
 
 const EXPIRES = 2592000; // 30 days, matching code.php
@@ -68,6 +73,16 @@ export default {
     const cacheKey = new Request(url.toString(), { method: "GET" });
     const cached = await cache.match(cacheKey);
     if (cached) return cached;
+
+    // Per-IP rate limit on cache misses (the expensive, worker-invoking path).
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    const { success } = await env.RATE_LIMITER.limit({ key: ip });
+    if (!success) {
+      return new Response("Rate limit exceeded. Please try again later.", {
+        status: 429,
+        headers: { "Retry-After": "60", "Content-Type": "text/plain" },
+      });
+    }
 
     const { format, spec, error } = parseRequest(url);
     if (!spec) {
