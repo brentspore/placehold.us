@@ -1,0 +1,15 @@
+# Dev image: Node 22 + Bun. Nothing from this repo is baked in, so the file is
+# identical in every Node repo and Docker stores ONE image for all of them.
+# Dependencies install on the first `docker compose up` into this repo's
+# node_modules volume (from the Mac's own package cache, so mostly offline);
+# later starts reuse them and only catch up on changes.
+FROM mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm
+
+COPY --from=oven/bun:1 /usr/local/bin/bun /usr/local/bin/bun
+RUN ln -sf bun /usr/local/bin/bunx \
+ && git config --system --add safe.directory /app \
+ && mkdir -p /app/node_modules /app/.next /home/node/.bun/install/cache /home/node/.npm \
+ && chown -R node:node /app /home/node/.bun /home/node/.npm
+
+USER node
+WORKDIR /app

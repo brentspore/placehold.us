@@ -1,0 +1,2 @@
+# The dev image takes nothing from the repo: compose mounts the working tree.
+*
