@@ -22,6 +22,9 @@ services:
     image: placehold-us-dev
     container_name: placehold-us-dev
     init: true
+    # Docker's shared network: a network per project runs Docker out of address
+    # ranges after about 30 repos, and these servers never talk to each other.
+    network_mode: bridge
     command: sh -c "npm install --no-save --no-audit --no-fund && exec npm run dev -- --ip 0.0.0.0 --port 5129"
     ports:
       - "127.0.0.1:5129:5129"
