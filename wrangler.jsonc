@@ -4,12 +4,11 @@
   "main": "src/index.ts",
   "compatibility_date": "2025-01-01",
   "compatibility_flags": ["nodejs_compat"],
-  // Test subdomain on the real domain/TLS. The apex placehold.us is NOT here,
-  // so it keeps pointing at the old PHP server until cutover.
   // beta.* is a dedicated custom domain; apex + www are zone routes that attach
-  // the Worker in front of the existing (already Cloudflare-proxied) DNS. The
-  // Worker serves everything itself, so the old PHP origin is never reached.
-  // Rollback = remove these two routes; DNS is untouched throughout.
+  // the Worker in front of proxied DNS. The Worker serves everything itself.
+  // The apex A record points at 192.0.2.1 (a reserved address nobody can own)
+  // because there is no origin: the old PHP server was shut down 2026-10-26.
+  // Removing these routes would take the site down, not roll it back.
   "routes": [
     { "pattern": "beta.placehold.us", "custom_domain": true },
     { "pattern": "placehold.us/*", "zone_name": "placehold.us" },
