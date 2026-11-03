@@ -57,7 +57,7 @@
 		gtag('config', 'G-73WR5GHTDB');
 	</script>
 
-	<link href="/css/style.css?v=4" rel="stylesheet">
+	<link href="/css/style.css?v=6" rel="stylesheet">
 	<style>
 		/* Prevent horizontal scroll */
 		* {
@@ -181,56 +181,8 @@
 	You can also use it in your code, like this:<br>
 	<div class="url">&lt;img src="https://placehold.us/350x150"&gt;</div>
 	Have fun!
-	<div id="new">
-		<h2>New in November 2026</h2>
-		<ul>
-			<li><a href="/300/09f/fff.webp">WebP</a> images</li>
-			<li><a href="/300/transparent/e8117f.png">Transparent</a> backgrounds</li>
-			<li><a href="/300x150@2x.png">@2x and @3x</a> for retina screens</li>
-			<li>Pick a <a href="/300?text=Big&amp;font-size=90">font size</a></li>
-			<li>SVGs show our font again, at the same size as the other formats</li>
-			<li>Images work in canvas and WebGL</li>
-		</ul>
-	</div>
 </div>
 <div id="content-right">
-	<div id="format" class="panel">
-		<h2>Image Formats</h2>
-		<p>.svg, .png, .jpg, .gif, .webp</p>
-		<p>SVG is the default. It stays sharp at any size, and you don't need an extension for it. For any other format, add an extension. It can go at the end of any part of the URL.</p>
-		<p><a href="/300.png/09f/fff">https://placehold.us/300.png/09f/fff</a><br>
-		<a href="/300/09f.jpg/fff">https://placehold.us/300/09f.jpg/fff</a><br>
-		<a href="/300/09f/fff.webp">https://placehold.us/300/09f/fff.webp</a></p>
-		<p>For retina screens, add @2x or @3x. You get twice (or three times) the pixels with the same layout.<br>
-		<a href="/300x150@2x.png">https://placehold.us/300x150@2x.png</a></p>
-	</div>
-	<div id="text" class="panel">
-		<h2>Custom Text</h2>
-		<p>?text=Hello+World</p>
-		<p>The default text is the image size, like "300 x 250". Put your own at the end of the URL, up to 500 characters. Spaces become +, and | starts a new line. PNG, JPG, GIF and WebP can draw English and most accented letters. For other languages, use SVG.</p>
-		<p><a href="/300?text=placehold.us+rocks!">https://placehold.us/300?text=placehold.us+rocks!</a><br>
-		<a href="/300?text=Line+one|Line+two">https://placehold.us/300?text=Line+one|Line+two</a></p>
-		<p>Text sizes itself to fit. To pick a size in pixels, add font-size.<br>
-		<a href="/300?text=Big&amp;font-size=90">https://placehold.us/300?text=Big&amp;font-size=90</a></p>
-	</div>
-	<div id="color" class="panel">
-		<h2>Colors</h2>
-		<p>background color / text color</p>
-		<p>Colors are hex codes, without the #. Three digits work too (09f is 0099ff). Colors always follow the size.<br>
-		<a href="/250/ffffff/000000" class="hi">https://placehold.us/250/ffffff/000000</a><br>
-		<strong>not</strong><br>
-		<a href="/ffffff/250/000000" class="low">https://placehold.us/ffffff/250/000000</a></p>
-		<p>For no background at all, use transparent. It works in SVG, PNG, GIF and WebP. JPG has no transparency, so it gets white.<br>
-		<a href="/250/transparent/e8117f.png">https://placehold.us/250/transparent/e8117f.png</a></p>
-	</div>
-	<div id="size" class="panel">
-		<h2>Size</h2>
-		<p>width x height</p>
-		<p>Height is optional. Leave it off and you get a square. The largest size is 3000 x 3000, or 1500 x 1500 for WebP.</p>
-		<p>Example: <a href="/300">https://placehold.us/300</a><br>
-		<strong>Note: Size must be the first part of the URL</strong></p>
-		<p>Each image is cached for 30 days, so repeat loads are instant. Each visitor can make 100 new images a minute, and 20 a minute over one megapixel. Cached images don't count.</p>
-	</div>
 	<div id="images">
 		<img src="/350x150" width="350" height="150" alt="Gray placeholder image labeled 350 x 150">
 		<img src="/140x100" width="140" height="100" class="image" alt="Gray placeholder image labeled 140 x 100">
@@ -239,12 +191,62 @@
 	</div>
 </div>
 <div class="clear"></div>
+<div id="new">
+	<h2>New in November 2026</h2>
+	<ul>
+		<li><a href="/300/09f/fff.webp">WebP</a> images</li>
+		<li><a href="/300/transparent/e8117f.png">Transparent</a> backgrounds</li>
+		<li><a href="/300x150@2x.png">@2x and @3x</a> for retina screens</li>
+		<li>Pick a <a href="/300?text=Big&amp;font-size=90">font size</a></li>
+		<li>SVGs show our font again, at the same size as the other formats</li>
+		<li>Images work in canvas and WebGL</li>
+	</ul>
+</div>
 <div id="nav">
-	Other cool stuff you can do:
-	<a class="toggle-tabs" data-tab="size" href="#size">Size</a>
-	<a class="toggle-tabs" data-tab="color" href="#color">Color</a>
-	<a class="toggle-tabs" data-tab="text" href="#text">Text</a>
-	<a class="toggle-tabs" data-tab="format" href="#format">Format</a>
+	<span>How to customize:</span>
+	<a href="#size">Size</a>
+	<a href="#color">Color</a>
+	<a href="#text">Text</a>
+	<a href="#format">Format</a>
+</div>
+<div id="docs">
+		<div id="size" class="panel">
+			<h2>Size</h2>
+			<p>width x height</p>
+			<p>Height is optional. Leave it off and you get a square. The largest size is 3000 x 3000, or 1500 x 1500 for WebP.</p>
+			<p>Example: <a href="/300">https://placehold.us/300</a><br>
+			<strong>Note: Size must be the first part of the URL</strong></p>
+			<p>Each image is cached for 30 days, so repeat loads are instant. Each visitor can make 100 new images a minute, and 20 a minute over one megapixel. Cached images don't count.</p>
+		</div>
+		<div id="color" class="panel">
+			<h2>Colors</h2>
+			<p>background color / text color</p>
+			<p>Colors are hex codes, without the #. Three digits work too (09f is 0099ff). Colors always follow the size.<br>
+			<a href="/250/ffffff/000000" class="hi">https://placehold.us/250/ffffff/000000</a><br>
+			<strong>not</strong><br>
+			<a href="/ffffff/250/000000" class="low">https://placehold.us/ffffff/250/000000</a></p>
+			<p>For no background at all, use transparent. It works in SVG, PNG, GIF and WebP. JPG has no transparency, so it gets white.<br>
+			<a href="/250/transparent/e8117f.png">https://placehold.us/250/transparent/e8117f.png</a></p>
+		</div>
+		<div id="text" class="panel">
+			<h2>Custom Text</h2>
+			<p>?text=Hello+World</p>
+			<p>The default text is the image size, like "300 x 250". Put your own at the end of the URL, up to 500 characters. Spaces become +, and | starts a new line. PNG, JPG, GIF and WebP can draw English and most accented letters. For other languages, use SVG.</p>
+			<p><a href="/300?text=placehold.us+rocks!">https://placehold.us/300?text=placehold.us+rocks!</a><br>
+			<a href="/300?text=Line+one|Line+two">https://placehold.us/300?text=Line+one|Line+two</a></p>
+			<p>Text sizes itself to fit. To pick a size in pixels, add font-size.<br>
+			<a href="/300?text=Big&amp;font-size=90">https://placehold.us/300?text=Big&amp;font-size=90</a></p>
+		</div>
+		<div id="format" class="panel">
+			<h2>Image Formats</h2>
+			<p>.svg, .png, .jpg, .gif, .webp</p>
+			<p>SVG is the default. It stays sharp at any size, and you don't need an extension for it. For any other format, add an extension. It can go at the end of any part of the URL.</p>
+			<p><a href="/300.png/09f/fff">https://placehold.us/300.png/09f/fff</a><br>
+			<a href="/300/09f.jpg/fff">https://placehold.us/300/09f.jpg/fff</a><br>
+			<a href="/300/09f/fff.webp">https://placehold.us/300/09f/fff.webp</a></p>
+			<p>For retina screens, add @2x or @3x. You get twice (or three times) the pixels with the same layout.<br>
+			<a href="/300x150@2x.png">https://placehold.us/300x150@2x.png</a></p>
+		</div>
 </div>
 <div id="more">
 	<h2>More from Synergy</h2>
@@ -297,17 +299,6 @@
 			grid.appendChild(a);
 		});
 	})();
-
-	// Show one panel at a time over the sample images.
-	document.querySelectorAll('.toggle-tabs').forEach(function (link) {
-		link.addEventListener('click', function (event) {
-			event.preventDefault();
-			var target = link.getAttribute('data-tab');
-			document.querySelectorAll('#content-right > div').forEach(function (panel) {
-				panel.style.display = panel.id === target ? 'block' : 'none';
-			});
-		});
-	});
 </script>
 <script src="/tip-jar.js?v=1" defer></script>
 </body>

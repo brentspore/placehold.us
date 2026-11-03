@@ -179,13 +179,20 @@ p a:hover {
 	font-weight: bold;
 }
 
+#nav {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+#nav span {
+	margin-right: auto;
+}
 #nav a {
 	color: white;
 	display: block;
 	background: #aaa;
 	padding: 4px 35px;
-	margin: -4px 5px 0 5px;
-	float: right;
 	text-decoration: none;
 }
 
@@ -193,12 +200,27 @@ p a:hover {
 	background: #E8117F;
 }
 
-/* Info panels: hidden until a nav link shows one in place of the images. */
-#size, #color, #text, #format {
-	display: none;
-	min-height: 331px;
-	width: 100%;
-	background-color: white;
+/* The four how-to sections, always visible: two columns, stacked on phones. */
+#docs {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px 50px;
+	margin-top: 25px;
+}
+#docs .panel {
+	scroll-margin-top: 20px;
+	min-width: 0;
+}
+#docs h2 {
+	margin-bottom: 8px;
+}
+#docs p a {
+	overflow-wrap: anywhere;
+}
+@media screen and (max-width: 768px) {
+	#docs {
+		grid-template-columns: 1fr;
+	}
 }
 #images {
 	text-align: center;
@@ -233,7 +255,7 @@ p a:hover {
 	text-decoration: none;
 	text-align: center;
 }
-/* "New in ..." box under the intro */
+/* "New in ..." strip: full width under both columns, items in three columns */
 #new {
 	margin-top: 25px;
 	border: 1px dotted #aaa;
@@ -247,6 +269,9 @@ p a:hover {
 	line-height: 1.6em;
 	list-style: square;
 	padding-left: 18px;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 2px 40px;
 }
 #new a {
 	color: #E8117F;
@@ -254,6 +279,11 @@ p a:hover {
 }
 #new a:hover {
 	text-decoration: underline;
+}
+@media screen and (max-width: 768px) {
+	#new ul {
+		grid-template-columns: 1fr;
+	}
 }
 
 /* "More from Synergy" strip */
@@ -325,4 +355,11 @@ p a:hover {
 #footer .madeby:hover {
 	background: none;
 	opacity: 0.7;
+}
+@media screen and (max-width: 768px) {
+	#nav span {
+		flex: 1 1 100%;
+		margin-right: 0;
+		text-align: center;
+	}
 }

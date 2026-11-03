@@ -12,6 +12,7 @@ Last updated: 2026-11-03
 - Cleanup: GitHub Pages site deleted; beta.placehold.us custom domain detached (DNS record gone). Homepage has a "New in November 2026" box and the Size panel states caching and per-visitor limits.
 - Tip jar (public/tip-jar.js): same coffee-cup badge as One Page Toys/BuildUtilities, pink, to ko-fi.com/synergyprod; nudges once on a visitor's 3rd distinct visit day, 21-day cooldown, never after a click (localStorage `phu_tipjar_v1`, GA events tip_jar_click / tip_ask_shown). Also a footer Tip Jar link.
 - "More from Synergy" strip: 4 of 7 dev/design sister sites, shuffled per visit (taglines copied from BuildUtilities' src/config/sister-sites.ts, which were checked against each site). Footer is "Free to use · Tip Jar · Privacy · Made by Synergy" (no personal name). Privacy contact is now hello@synergyprod.com, and the policy covers the tip jar's local storage and Ko-fi.
+- Homepage layout: "How to customize" row (Size, Color, Text, Format jump links, same order at every width) over an always-visible docs section (2 columns, stacked on phones); the old tab toggling is gone. "New in November 2026" is a full-width strip under the intro and sample images.
 - Site: new og.png + favicon set (scripts/build-og.mjs), homepage without jQuery, docs for every option, privacy policy rewritten to match reality.
 - Tooling: vitest tests, smoke script; wrangler 4.157, vitest 5, workers-types 5, TypeScript 7; npm audit clean.
 
