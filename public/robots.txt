@@ -1,13 +1,15 @@
 User-agent: *
-Allow: /$
-Allow: /index.html
-Allow: /privacypolicy.html
-Disallow: /cache/
-Disallow: /*/
-Disallow: /*.png
-Disallow: /*.jpg
-Disallow: /*.jpeg
-Disallow: /*.gif
-Disallow: /*.svg
+# Generated images all start with a digit (/300, /350x150.png). Keep them out
+# of search; everything else (pages, favicons, og.png) can be crawled.
+Disallow: /0
+Disallow: /1
+Disallow: /2
+Disallow: /3
+Disallow: /4
+Disallow: /5
+Disallow: /6
+Disallow: /7
+Disallow: /8
+Disallow: /9
 
 Sitemap: https://placehold.us/sitemap.xml

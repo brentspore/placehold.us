@@ -2,10 +2,11 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "placehold-us",
   "main": "src/index.ts",
-  "compatibility_date": "2025-01-01",
+  "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
   // beta.* is a dedicated custom domain; apex + www are zone routes that attach
-  // the Worker in front of proxied DNS. The Worker serves everything itself.
+  // the Worker in front of proxied DNS. The Worker serves everything itself,
+  // and 301s www + beta to placehold.us (src/index.ts) so there is one site.
   // The apex A record points at 192.0.2.1 (a reserved address nobody can own)
   // because there is no origin: the old PHP server was shut down 2026-10-26.
   // Removing these routes would take the site down, not roll it back.
@@ -14,15 +15,23 @@
     { "pattern": "placehold.us/*", "zone_name": "placehold.us" },
     { "pattern": "www.placehold.us/*", "zone_name": "placehold.us" }
   ],
-  "workers_dev": true,
+  // No workers.dev or preview URLs: the Cache API does nothing there, so they
+  // would be an uncached copy of the site that renders every request.
+  "workers_dev": false,
+  "preview_urls": false,
+  // wrangler dev presents requests as coming from the first route's host
+  // (beta), which the Worker would redirect. Present them as the main domain.
+  "dev": { "host": "placehold.us" },
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
-    // Static files (homepage, css, favicon, font) are served first when the
-    // path matches a file in ./public; everything else falls through to the
-    // Worker (the image generator). This replaces the old .htaccess routing.
+    // The Worker runs first so it can redirect www/beta; it hands non-image
+    // paths (homepage, css, favicons, font, og image) to this binding.
+    "run_worker_first": true,
     "not_found_handling": "none"
   },
+  // A render takes about 0.3s of CPU at most; cap runaway requests at 5s.
+  "limits": { "cpu_ms": 5000 },
   "observability": {
     "enabled": true
   },
@@ -32,16 +41,20 @@
   "vars": {
     "GA_MEASUREMENT_ID": "G-73WR5GHTDB"
   },
-  // Per-IP rate limiting (mirrors the old PHP limiter: 100 requests / 60s).
-  // Checked only on cache misses, so cached traffic is never throttled.
-  "unsafe": {
-    "bindings": [
-      {
-        "name": "RATE_LIMITER",
-        "type": "ratelimit",
-        "namespace_id": "1001",
-        "simple": { "limit": 100, "period": 60 }
-      }
-    ]
-  }
+  // Rate limits, checked only on cache misses so cached traffic is never
+  // throttled. Keyed per IPv4 address or IPv6 /64 (src/routing.ts).
+  "ratelimits": [
+    {
+      // all new images: 100 / minute (mirrors the old PHP limiter)
+      "name": "RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 100, "period": 60 }
+    },
+    {
+      // raster images over 1 megapixel: 20 / minute
+      "name": "RATE_LIMITER_LARGE",
+      "namespace_id": "1002",
+      "simple": { "limit": 20, "period": 60 }
+    }
+  ]
 }

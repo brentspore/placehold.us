@@ -8,17 +8,22 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
-    "build:fonts": "node scripts/build-font-subsets.mjs"
+    "test": "vitest run",
+    "smoke": "node scripts/smoke.mjs",
+    "build:fonts": "node scripts/build-font-subsets.mjs",
+    "build:og": "node scripts/build-og.mjs"
   },
   "dependencies": {
+    "@jsquash/webp": "^1.5.0",
     "@resvg/resvg-wasm": "^2.6.2",
     "gifenc": "^1.0.3",
     "jpeg-js": "^0.4.4"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250101.0",
-    "fontkit": "^2.0.4",
-    "typescript": "^5.7.0",
-    "wrangler": "^4.0.0"
+    "@cloudflare/workers-types": "^5.20261103.1",
+    "subset-font": "^2.9.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0",
+    "wrangler": "^4.157.0"
   }
 }

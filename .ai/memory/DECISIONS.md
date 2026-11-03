@@ -19,3 +19,36 @@ If a decision should apply across multiple projects, record it in `~/.ai/memory/
 **Revisit if:** What would make this worth reconsidering.
 
 ---
+
+### 2026-11-03 — Max image size is 3000x3000
+
+**Context:** 3999x3999 JPG/GIF crashed the Worker (Cloudflare 1102, out of memory). The old rule was an area cap of 16M pixels.
+
+**Decision:** No side may exceed 3000 output pixels, in any format. @2x/@3x count toward it for raster formats (so 1500@2x.png is the largest at 2x). Larger requests get a 413.
+
+**Rationale:** Owner's call: no huge images.
+
+**Amended 2026-11-03 (owner): WebP stops at 1500x1500.** The lossless WebP encoder's wasm heap reaches about 195MB at 3000x3000 (49MB at 1500x1500) and a Worker gets 128MB. PNG/JPG/GIF at 3000x3000 worked live before the change; confirm all formats with `npm run smoke -- https://placehold.us` after each deploy, since wrangler dev does not enforce the memory limit.
+
+**Revisit if:** People ask for long banners (e.g. 4000x200), which are cheap but blocked by the per-side rule.
+
+### 2026-11-03 — One www-less site
+
+**Decision:** www.placehold.us and beta.placehold.us 301 to placehold.us (path and query kept) in src/routing.ts. The routes stay in wrangler.jsonc so the redirect keeps working; the beta custom domain can be detached later.
+
+**Rationale:** Duplicate homepages hurt search, and three hosts split the image cache.
+
+### 2026-11-03 — One font-size formula for all formats
+
+**Context:** The old service drew SVG text about 40% smaller than PNG text. Nobody noticed because the SVG font subset was broken (no cmap) from June to November 2026 and browsers showed Arial.
+
+**Decision:** Every format uses the raster formula (min of width/longest-line*1.2, 30% of height, and a multi-line height fit; floor 5px). `?font-size=` overrides it.
+
+**Revisit if:** Anyone reports their SVG placeholders changed size in a way that breaks a layout (the image size itself never changed, only the label).
+
+### 2026-11-03 — Abuse limits
+
+**Decision:** Two per-client limits on cache misses: 100 new images a minute, and 20 a minute for raster images over 1 megapixel. Clients are keyed per IPv4 address or IPv6 /64. Worker CPU is capped at 5s (`limits.cpu_ms`, paid plan). Raster renders run one at a time per isolate. workers.dev and preview URLs are off (no Cache API there, so they were an uncached mirror).
+
+**Revisit if:** Legit heavy users hit 429s (raise the large limit first).
+

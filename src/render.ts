@@ -1,107 +1,41 @@
-// Image generation — port of code.php's SVG + raster paths.
+// Image generation.
 //
-// SVG (default): brand font subset (fontkit) base64-embedded so text renders
-//   inside <img> tags; small (~2-5KB) instead of the old ~84KB full-font embed.
-// PNG/JPG/GIF: render the same SVG geometry with resvg-wasm (full font passed
-//   as a buffer, so no embed needed), then encode the RGBA pixels.
+// SVG (default): markup from svg.ts with a brand font subset embedded.
+// PNG/JPG/GIF/WebP: the same SVG drawn by resvg-wasm (full font passed as a
+// buffer), then encoded.
+//
+// Memory is the constraint (a Worker gets 128MB, and wasm memory never shrinks
+// once grown). So raster renders run one at a time per isolate, only one JS
+// copy of the pixels is kept, and the WebP encoder gets a fresh wasm instance
+// per image so its ~50MB peak can be garbage-collected afterwards.
 
 import { Resvg, initWasm } from "@resvg/resvg-wasm";
 // @ts-ignore - .wasm import resolves to a WebAssembly.Module in Workers
 import resvgWasm from "@resvg/resvg-wasm/index_bg.wasm";
+// @ts-ignore - Workers support SIMD, so jsquash loads its SIMD build
+import webpWasm from "@jsquash/webp/codec/enc/webp_enc_simd.wasm";
+import encodeWebp, { init as initWebp } from "@jsquash/webp/encode";
 // @ts-ignore - .ttf import resolves to an ArrayBuffer via the Data module rule
 import fontTtf from "../AauxOffice-Bold.ttf";
 import jpeg from "jpeg-js";
 import { quantize, applyPalette, GIFEncoder } from "gifenc";
+import { TRANSPARENT } from "./color";
 import type { Format, ImageSpec } from "./parse";
-import { NUMERIC_CHARS, SUBSET_NUMERIC, SUBSET_ASCII } from "./font-subsets";
+import { buildSvg, FONT_FAMILY } from "./svg";
 
-const FONT_FAMILY = "AauxOffice";
-const FONT_STACK = `${FONT_FAMILY}, Arial, sans-serif`;
 const fontBytes = new Uint8Array(fontTtf as ArrayBuffer);
 
-// --- resvg wasm init (once per isolate) ---
-let wasmReady: Promise<unknown> | null = null;
-function ensureWasm(): Promise<unknown> {
-  if (!wasmReady) wasmReady = initWasm(resvgWasm as WebAssembly.Module);
-  return wasmReady;
-}
-
-// Pick the smallest prebuilt font subset that covers the text. Default
-// dimension text ("300 x 200") only needs the ~3KB numeric subset; anything
-// with letters/symbols uses the fuller ASCII subset. Glyphs outside both fall
-// back to the SVG's Arial/sans-serif stack in the browser.
-const numericChars = new Set(NUMERIC_CHARS);
-function fontSubsetBase64(text: string): string {
-  for (const ch of text) {
-    if (ch === " " || ch === "\n") continue;
-    if (!numericChars.has(ch)) return SUBSET_ASCII;
+// resvg can only be initialized once per isolate. A failed attempt is not
+// remembered, so the next request tries again instead of failing forever.
+let resvgReady: Promise<void> | null = null;
+function ensureResvg(): Promise<void> {
+  if (!resvgReady) {
+    resvgReady = initWasm(resvgWasm as WebAssembly.Module).catch((e) => {
+      resvgReady = null;
+      throw e;
+    });
   }
-  return SUBSET_NUMERIC;
-}
-
-function esc(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-// Two sizing formulas, matching code.php: SVG text is smaller than raster text.
-function fontSize(spec: ImageSpec, raster: boolean): number {
-  const len = Math.max(spec.text.length, 1);
-  if (raster) {
-    return Math.max(Math.min((spec.w / len) * 1.2, spec.h * 0.3), 12);
-  }
-  return Math.max(Math.min((spec.w / len) * 0.75, spec.h * 0.25), 5);
-}
-
-function tspans(text: string, size: number): string {
-  const lines = text.split("\n");
-  if (lines.length === 1) return esc(text);
-  // vertically center the block of lines around y=50%
-  const lineHeight = size * 1.2;
-  const startDy = -((lines.length - 1) / 2) * lineHeight;
-  return lines
-    .map((line, i) => {
-      const dy = i === 0 ? startDy : lineHeight;
-      return `<tspan x="50%" dy="${dy}">${esc(line)}</tspan>`;
-    })
-    .join("");
-}
-
-export function buildSvg(spec: ImageSpec, opts: { embedFont: boolean; raster: boolean }): string {
-  const size = fontSize(spec, opts.raster);
-  const fontFace = opts.embedFont
-    ? `<defs><style type="text/css">
-@font-face {
-font-family: "${FONT_FAMILY}";
-src: url("data:font/truetype;charset=utf-8;base64,${fontSubsetBase64(spec.text)}") format("truetype");
-font-weight: bold;
-}
-</style></defs>`
-    : "";
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<svg width="${spec.w}" height="${spec.h}" xmlns="http://www.w3.org/2000/svg">
-${fontFace}<rect width="100%" height="100%" fill="#${spec.bgHex}"/>
-<text x="50%" y="50%" font-family="${FONT_STACK}" font-size="${size}" font-weight="bold" fill="#${spec.fgHex}" text-anchor="middle" dominant-baseline="middle">${tspans(spec.text, size)}</text>
-</svg>`;
-}
-
-async function rasterPixels(spec: ImageSpec): Promise<{ pixels: Uint8Array; width: number; height: number; png: Uint8Array }> {
-  await ensureWasm();
-  const svg = buildSvg(spec, { embedFont: false, raster: true });
-  const r = new Resvg(svg, {
-    font: { fontBuffers: [fontBytes], defaultFontFamily: FONT_FAMILY, loadSystemFonts: false },
-  });
-  const rendered = r.render();
-  const png = rendered.asPng();
-  const pixels = rendered.pixels;
-  const width = rendered.width;
-  const height = rendered.height;
-  rendered.free();
-  r.free();
-  return { pixels, width, height, png };
+  return resvgReady;
 }
 
 export interface RenderResult {
@@ -109,31 +43,98 @@ export interface RenderResult {
   contentType: string;
 }
 
-export async function render(spec: ImageSpec, format: Format): Promise<RenderResult> {
+// One raster render at a time per isolate, so two big images never hold
+// memory at once. A failed render doesn't block the ones queued behind it.
+let queue: Promise<unknown> = Promise.resolve();
+function serialized<T>(job: () => Promise<T>): Promise<T> {
+  const run = queue.then(job, job);
+  queue = run.catch(() => {});
+  return run;
+}
+
+export function render(spec: ImageSpec, format: Format): Promise<RenderResult> {
   if (format === "svg") {
-    return {
-      body: buildSvg(spec, { embedFont: true, raster: false }),
-      contentType: "image/svg+xml",
-    };
+    return Promise.resolve({
+      body: buildSvg(spec, { embedFont: true }),
+      contentType: "image/svg+xml; charset=utf-8",
+    });
   }
+  return serialized(() => renderRaster(spec, format));
+}
 
-  const { pixels, width, height, png } = await rasterPixels(spec);
-
-  if (format === "png") {
-    return { body: png, contentType: "image/png" };
+// resvg hands back premultiplied RGBA. Opaque pixels are unaffected; edge
+// pixels of text on a transparent background need un-premultiplying or they
+// come out darker than the text color.
+function unpremultiply(px: Uint8Array): void {
+  for (let i = 0; i < px.length; i += 4) {
+    const a = px[i + 3];
+    if (a === 0 || a === 255) continue;
+    px[i] = Math.min(255, Math.round((px[i] * 255) / a));
+    px[i + 1] = Math.min(255, Math.round((px[i + 1] * 255) / a));
+    px[i + 2] = Math.min(255, Math.round((px[i + 2] * 255) / a));
   }
+}
+
+/** Draw the image. PNG comes straight from resvg; the rest get RGBA pixels. */
+function draw(spec: ImageSpec, format: Format): { png: Uint8Array } | { pixels: Uint8Array; width: number; height: number } {
+  const transparent = spec.bg === TRANSPARENT;
+  const r = new Resvg(buildSvg(spec, { embedFont: false }), {
+    font: { fontBuffers: [fontBytes], defaultFontFamily: FONT_FAMILY, loadSystemFonts: false },
+    fitTo: spec.scale > 1 ? { mode: "zoom", value: spec.scale } : { mode: "original" },
+    // JPG has no alpha channel: a transparent background becomes white.
+    ...(transparent && format === "jpg" ? { background: "#ffffff" } : {}),
+  });
+  try {
+    const rendered = r.render();
+    try {
+      if (format === "png") return { png: rendered.asPng() };
+      return { pixels: rendered.pixels, width: rendered.width, height: rendered.height };
+    } finally {
+      rendered.free();
+    }
+  } finally {
+    r.free();
+  }
+}
+
+async function renderRaster(spec: ImageSpec, format: Format): Promise<RenderResult> {
+  await ensureResvg();
+  const drawn = draw(spec, format);
+  if ("png" in drawn) return { body: drawn.png, contentType: "image/png" };
+
+  const { pixels, width, height } = drawn;
 
   if (format === "jpg") {
     const encoded = jpeg.encode({ data: pixels, width, height }, 75);
     return { body: new Uint8Array(encoded.data), contentType: "image/jpeg" };
   }
 
+  if (spec.bg === TRANSPARENT) unpremultiply(pixels);
+
+  if (format === "webp") {
+    // A fresh encoder instance per image (see the note at the top).
+    await initWebp(webpWasm as WebAssembly.Module);
+    // Lossless: flat-color placeholders compress to a few hundred bytes.
+    const buf = await encodeWebp(
+      { data: new Uint8ClampedArray(pixels.buffer, pixels.byteOffset, pixels.byteLength), width, height } as unknown as Parameters<typeof encodeWebp>[0],
+      { lossless: 1, quality: 100, method: 2 },
+    );
+    return { body: new Uint8Array(buf), contentType: "image/webp" };
+  }
+
   // gif
-  const rgba = new Uint8Array(pixels);
-  const palette = quantize(rgba, 256);
-  const index = applyPalette(rgba, palette);
+  const transparent = spec.bg === TRANSPARENT;
+  const palette = transparent
+    ? quantize(pixels, 256, { format: "rgba4444", oneBitAlpha: true })
+    : quantize(pixels, 256);
+  const index = transparent ? applyPalette(pixels, palette, "rgba4444") : applyPalette(pixels, palette);
+  const transparentIndex = transparent ? palette.findIndex((c: number[]) => c[3] === 0) : -1;
   const enc = GIFEncoder();
-  enc.writeFrame(index, width, height, { palette });
+  enc.writeFrame(index, width, height, {
+    palette,
+    transparent: transparentIndex >= 0,
+    transparentIndex: Math.max(transparentIndex, 0),
+  });
   enc.finish();
   return { body: enc.bytes(), contentType: "image/gif" };
 }

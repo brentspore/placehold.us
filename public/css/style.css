@@ -193,44 +193,12 @@ p a:hover {
 	background: #E8117F;
 }
 
-#size {
-	display:none;
-	position:absolute;
-	height: 331px;
-	width: 350px;
-	border-style: none;
+/* Info panels: hidden until a nav link shows one in place of the images. */
+#size, #color, #text, #format {
+	display: none;
+	min-height: 331px;
+	width: 100%;
 	background-color: white;
-	z-index:9999
-}
-
-#color {
-	display:none;
-	position:absolute;
-	height: 331px;
-	width: 350px;
-	border-style: none;
-	background-color: white;
-	z-index:9999
-}
-
-#text {
-	display:none;
-	position:absolute;
-	height: 331px;
-	width: 350px;
-	border-style: none;
-	background-color: white;
-	z-index:9999
-}
-
-#format {
-	display:none;
-	position:absolute;
-	height: 331px;
-	width: 350px;
-	border-style: none;
-	background-color: white;
-	z-index:9999
 }
 #images {
 	text-align: center;
