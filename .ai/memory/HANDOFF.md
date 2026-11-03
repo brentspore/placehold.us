@@ -7,7 +7,7 @@ Last updated: 2026-11-03
 - Limits: 3000x3000 max output (WebP 1500x1500, memory), text 500 chars / 20 lines, control characters stripped. Rate limits per IPv4 or IPv6 /64: 100 new images a minute, 20 a minute for raster over 1MP. cpu_ms 5000. Raster renders serialized per isolate. workers.dev + preview URLs off.
 - Features: .webp, transparent background, @2x/@3x, ?font-size=.
 - SVG brand font works again (old fontkit subsets had no cmap; now HarfBuzz WOFF2, with a full-coverage subset for accented text). One font-size formula for all formats.
-- Cache key built from what is drawn (`/__cache/v2/...`), ETag + 304, immutable. www and beta 301 to placehold.us.
+- Cache key built from what is drawn (`/__cache/v2/...`), ETag + 304, immutable. www 301s to placehold.us.
 - GA client id is a daily-rotating HMAC (keyed with GA_API_SECRET).
 - Cleanup: GitHub Pages site deleted; beta.placehold.us custom domain detached (DNS record gone). Homepage has a "New in November 2026" box and the Size panel states caching and per-visitor limits.
 - Site: new og.png + favicon set (scripts/build-og.mjs), homepage without jQuery, docs for every option, privacy policy rewritten to match reality (contact points at brentspore.com until there is an address).
@@ -17,4 +17,4 @@ Last updated: 2026-11-03
 
 **Run/verify:** `npm install`; `npm run dev`; `npm test`; `npm run smoke` (local) or `npm run smoke -- https://placehold.us` (live; uses about 6 of the 20-a-minute large-image budget). Rebuild assets with `npm run build:og` and `npm run build:fonts`.
 
-**Next:** Nothing owed. Owner was weighing a watermark + paid removal (advised against, 2026-11-03); if revisited, see that conversation's reasoning in DECISIONS. Check GA Realtime shows `image_generated` events with the new secret.
+**Next:** Nothing owed. Open question from the owner (2026-11-03): watermark images and sell removal? Advised against (placeholders are temporary, free no-watermark rivals are one URL change away, and it would change images already embedded on other sites); suggested a tip link or paying for more (limits, sizes) instead. Not decided. Also check GA Realtime shows `image_generated` events with the new secret.
