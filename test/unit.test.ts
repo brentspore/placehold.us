@@ -164,9 +164,8 @@ describe("cache key", () => {
 });
 
 describe("routing", () => {
-  it("www and beta redirect to the main domain, keeping path and query", () => {
+  it("www redirects to the main domain, keeping path and query", () => {
     expect(canonicalRedirect(new URL("https://www.placehold.us/300?text=hi"))).toBe("https://placehold.us/300?text=hi");
-    expect(canonicalRedirect(new URL("https://beta.placehold.us/"))).toBe("https://placehold.us/");
   });
   it("main domain and workers.dev are served", () => {
     expect(canonicalRedirect(new URL("https://placehold.us/300"))).toBeNull();

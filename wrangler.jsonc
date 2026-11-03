@@ -4,14 +4,14 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
-  // beta.* is a dedicated custom domain; apex + www are zone routes that attach
-  // the Worker in front of proxied DNS. The Worker serves everything itself,
-  // and 301s www + beta to placehold.us (src/index.ts) so there is one site.
+  // Apex + www are zone routes that attach the Worker in front of proxied DNS.
+  // The Worker serves everything itself and 301s www to placehold.us
+  // (src/routing.ts) so there is one site. (beta.placehold.us, a custom domain
+  // used during the 2026 move off PHP, was retired 2026-11-03.)
   // The apex A record points at 192.0.2.1 (a reserved address nobody can own)
   // because there is no origin: the old PHP server was shut down 2026-10-26.
   // Removing these routes would take the site down, not roll it back.
   "routes": [
-    { "pattern": "beta.placehold.us", "custom_domain": true },
     { "pattern": "placehold.us/*", "zone_name": "placehold.us" },
     { "pattern": "www.placehold.us/*", "zone_name": "placehold.us" }
   ],
@@ -19,13 +19,13 @@
   // would be an uncached copy of the site that renders every request.
   "workers_dev": false,
   "preview_urls": false,
-  // wrangler dev presents requests as coming from the first route's host
-  // (beta), which the Worker would redirect. Present them as the main domain.
+  // wrangler dev presents requests as coming from the first route's host;
+  // pin it to the main domain so local requests are never redirected.
   "dev": { "host": "placehold.us" },
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
-    // The Worker runs first so it can redirect www/beta; it hands non-image
+    // The Worker runs first so it can redirect www; it hands non-image
     // paths (homepage, css, favicons, font, og image) to this binding.
     "run_worker_first": true,
     "not_found_handling": "none"

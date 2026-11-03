@@ -1,7 +1,7 @@
 // Host and path routing decisions, kept free of wasm imports for unit tests.
 
 export const CANONICAL_HOST = "placehold.us";
-const REDIRECT_HOSTS = new Set(["www.placehold.us", "beta.placehold.us"]);
+const REDIRECT_HOSTS = new Set(["www.placehold.us"]);
 
 /** Where to send a request on a non-canonical host, or null to serve it. */
 export function canonicalRedirect(url: URL): string | null {

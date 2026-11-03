@@ -1,7 +1,7 @@
 // placehold.us — Cloudflare Worker entrypoint.
 //
 // The Worker runs first for every request (assets.run_worker_first), so it can
-// send www/beta to the main domain. Paths that start with a digit are image
+// send www to the main domain. Paths that start with a digit are image
 // requests (/350x150/09f/fff.png); everything else is a static file in
 // ./public, served through the ASSETS binding.
 

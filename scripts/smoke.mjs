@@ -67,7 +67,7 @@ check("og image", (await get("/og.png")).res.status === 200);
 check("POST rejected", (await get(`/300?text=${t}`, { method: "POST" })).res.status === 405);
 
 if (base.includes("placehold.us")) {
-  for (const host of ["https://www.placehold.us", "https://beta.placehold.us"]) {
+  for (const host of ["https://www.placehold.us"]) {
     const res = await fetch(`${host}/300?x=${run}`, { redirect: "manual" });
     check(`${host} redirects`, res.status === 301 && res.headers.get("location") === `https://placehold.us/300?x=${run}`);
   }
