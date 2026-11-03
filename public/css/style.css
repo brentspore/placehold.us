@@ -255,3 +255,74 @@ p a:hover {
 #new a:hover {
 	text-decoration: underline;
 }
+
+/* "More from Synergy" strip */
+#more {
+	margin-top: 25px;
+	border-top: 1px dotted #aaa;
+	padding-top: 25px;
+}
+#more h2 {
+	margin-bottom: 12px;
+}
+.more-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 10px;
+}
+.more-card {
+	display: block;
+	padding: 12px 14px;
+	background: #f4f4f4;
+	color: #222;
+	text-decoration: none;
+	line-height: 1.35em;
+}
+.more-card strong {
+	display: block;
+	font-weight: bold;
+	font-size: 14px;
+	margin-bottom: 3px;
+}
+.more-card span {
+	display: block;
+	font-size: 12px;
+	color: #777;
+}
+.more-card:hover {
+	background: #E8117F;
+}
+.more-card:hover strong,
+.more-card:hover span {
+	color: #fff;
+}
+@media screen and (max-width: 768px) {
+	.more-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+/* Footer "Made by Synergy" */
+#footer .madeby {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-left: 10px;
+	padding: 0;
+	background: none;
+	vertical-align: middle;
+}
+#footer .madeby span {
+	font-size: 8px;
+	color: #aaa;
+	letter-spacing: 0.06em;
+}
+#footer .madeby img {
+	height: 13px;
+	width: auto;
+	display: block;
+}
+#footer .madeby:hover {
+	background: none;
+	opacity: 0.7;
+}

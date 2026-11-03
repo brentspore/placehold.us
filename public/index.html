@@ -43,6 +43,7 @@
 		"applicationCategory": "DeveloperApplication",
 		"operatingSystem": "Any",
 		"image": "https://placehold.us/og.png?v=2",
+		"creator": { "@type": "Organization", "name": "Synergy", "url": "https://synergyprod.com/" },
 		"offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
 	}
 	</script>
@@ -56,7 +57,7 @@
 		gtag('config', 'G-73WR5GHTDB');
 	</script>
 
-	<link href="/css/style.css?v=3" rel="stylesheet">
+	<link href="/css/style.css?v=4" rel="stylesheet">
 	<style>
 		/* Prevent horizontal scroll */
 		* {
@@ -245,9 +246,58 @@
 	<a class="toggle-tabs" data-tab="text" href="#text">Text</a>
 	<a class="toggle-tabs" data-tab="format" href="#format">Format</a>
 </div>
-<div id="footer">Provided for free by <a href="https://brentspore.com">this guy</a> &middot; <a href="/privacypolicy">Privacy</a></div>
+<div id="more">
+	<h2>More from Synergy</h2>
+	<div class="more-grid" id="more-grid">
+		<a class="more-card" href="https://buildutilities.com" target="_blank" rel="noopener"><strong>BuildUtilities</strong><span>Tiny, fast tools to help you build stuff</span></a>
+		<a class="more-card" href="https://meshgradientstudio.com" target="_blank" rel="noopener"><strong>Mesh Gradient Studio</strong><span>Design beautiful mesh gradients</span></a>
+		<a class="more-card" href="https://justletters.app" target="_blank" rel="noopener"><strong>Just Letters</strong><span>Typography-only social posts</span></a>
+		<a class="more-card" href="https://onepagetoys.com" target="_blank" rel="noopener"><strong>One Page Toys</strong><span>Tiny, delightful one-page apps</span></a>
+	</div>
+</div>
+<div id="footer">
+	<span>Free to use</span> &middot;
+	<a href="https://ko-fi.com/synergyprod" target="_blank" rel="noopener noreferrer" title="Buy us a coffee">Tip Jar</a> &middot;
+	<a href="/privacypolicy">Privacy</a>
+	<a class="madeby" href="https://synergyprod.com/" target="_blank" rel="noopener"><span>Made by</span><img src="/synergy-logo.svg" alt="Synergy" width="51" height="13"></a>
+</div>
 </div>
 <script>
+	// "More from Synergy": four sites from this pool, in a new order each visit.
+	// Taglines are copied from each site's own page (same wording BuildUtilities
+	// uses in src/config/sister-sites.ts); re-check the site before editing one.
+	(function () {
+		var pool = [
+			['BuildUtilities', 'https://buildutilities.com', 'Tiny, fast tools to help you build stuff'],
+			['Mesh Gradient Studio', 'https://meshgradientstudio.com', 'Design beautiful mesh gradients'],
+			['Just Letters', 'https://justletters.app', 'Typography-only social posts'],
+			['Backlog Viewer', 'https://backlogviewer.com', "One quiet place for every project's backlog"],
+			['One Page Toys', 'https://onepagetoys.com', 'Tiny, delightful one-page apps'],
+			['Design is not UI', 'https://designisnotui.com', 'A position on product design'],
+			['The Trail Game', 'https://thetrailgame.com', 'A daily path puzzle']
+		];
+		for (var i = pool.length - 1; i > 0; i--) {
+			var j = Math.floor(Math.random() * (i + 1));
+			var t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+		}
+		var grid = document.getElementById('more-grid');
+		grid.textContent = '';
+		pool.slice(0, 4).forEach(function (site) {
+			var a = document.createElement('a');
+			a.className = 'more-card';
+			a.href = site[1];
+			a.target = '_blank';
+			a.rel = 'noopener';
+			var name = document.createElement('strong');
+			name.textContent = site[0];
+			var line = document.createElement('span');
+			line.textContent = site[2];
+			a.appendChild(name);
+			a.appendChild(line);
+			grid.appendChild(a);
+		});
+	})();
+
 	// Show one panel at a time over the sample images.
 	document.querySelectorAll('.toggle-tabs').forEach(function (link) {
 		link.addEventListener('click', function (event) {
@@ -259,5 +309,6 @@
 		});
 	});
 </script>
+<script src="/tip-jar.js?v=1" defer></script>
 </body>
 </html>
