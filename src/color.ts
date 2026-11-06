@@ -1,8 +1,9 @@
 // Color parsing for the URL grammar.
 //
-// Only real hex colors are accepted. Anything else falls back to the default,
-// because these values are written into SVG markup: an unchecked value let a
-// crafted URL inject elements and run script on placehold.us (fixed 2026-11-03).
+// Only real hex colors are accepted, because these values are written into SVG
+// markup: an unchecked value let a crafted URL inject elements and run script
+// on placehold.us (fixed 2026-11-03). Since 2026-11-05 anything else gets an
+// error image instead of quietly falling back to the default colors.
 
 export const TRANSPARENT = "transparent";
 
@@ -31,16 +32,4 @@ export function normalizeHex(input: string): string | null {
     default:
       return null;
   }
-}
-
-/** Background color: a hex color or "transparent". Invalid input -> fallback. */
-export function parseBackground(input: string, fallback: string): string {
-  const v = (input || "").toLowerCase();
-  if (v === TRANSPARENT) return TRANSPARENT;
-  return normalizeHex(v) ?? fallback;
-}
-
-/** Text color: a hex color. Invalid input -> fallback. */
-export function parseForeground(input: string, fallback: string): string {
-  return normalizeHex(input) ?? fallback;
 }

@@ -7,6 +7,7 @@
 
 import { parseRequest, cacheKeyFor } from "./parse";
 import { render } from "./render";
+import { errorSvg } from "./svg";
 import { canonicalRedirect, isImagePath, rateLimitKey } from "./routing";
 
 interface RateLimiter {
@@ -35,12 +36,38 @@ const IMAGE_HEADERS: Record<string, string> = {
     "default-src 'none'; style-src 'unsafe-inline'; font-src data:; img-src data:; sandbox",
 };
 
+// Bad-URL answers never change, so browsers may keep them for an hour.
+function errorCacheControl(status: number): string {
+  return [400, 404, 413].includes(status) ? "public, max-age=3600" : "no-store";
+}
+
 function textResponse(status: number, body: string, extra: Record<string, string> = {}): Response {
-  // Bad-URL answers never change, so browsers may keep them for an hour.
-  const cacheControl = [400, 404, 413].includes(status) ? "public, max-age=3600" : "no-store";
   return new Response(body, {
     status,
-    headers: { ...IMAGE_HEADERS, "Content-Type": "text/plain; charset=utf-8", "Cache-Control": cacheControl, ...extra },
+    headers: { ...IMAGE_HEADERS, "Content-Type": "text/plain; charset=utf-8", "Cache-Control": errorCacheControl(status), ...extra },
+  });
+}
+
+// Image errors come back as an SVG that says what's wrong, drawn at the
+// requested size, so an <img> shows the problem instead of a broken icon. The
+// status code stays an error, and X-Placehold-Error carries the message for
+// curl and devtools. Always SVG, whatever format was asked for: it costs
+// nothing to make at any size.
+function errorImage(
+  status: number,
+  message: string,
+  size?: { w: number; h: number },
+  extra: Record<string, string> = {},
+): Response {
+  return new Response(errorSvg(message, size), {
+    status,
+    headers: {
+      ...IMAGE_HEADERS,
+      "Content-Type": "image/svg+xml; charset=utf-8",
+      "Cache-Control": errorCacheControl(status),
+      "X-Placehold-Error": message.replace(/\s*\n\s*/g, ". ").replace(/[^\x20-\x7e]/g, ""),
+      ...extra,
+    },
   });
 }
 
@@ -113,8 +140,8 @@ export default {
       return textResponse(405, "Method not allowed", { Allow: "GET, HEAD, OPTIONS" });
     }
 
-    const { format, spec, status, error } = parseRequest(url);
-    if (!spec) return textResponse(status ?? 404, error || "Not found");
+    const { format, spec, status, error, errorSize } = parseRequest(url);
+    if (!spec) return errorImage(status ?? 404, error || "Not found", errorSize);
 
     const key = cacheKeyFor(url.origin, format, spec);
     // The same URL always draws the same image, so the ETag is the cache key.
@@ -141,11 +168,12 @@ export default {
     const client = rateLimitKey(request.headers.get("CF-Connecting-IP"));
     const scale = format === "svg" ? 1 : spec.scale;
     const large = format !== "svg" && spec.w * spec.h * scale * scale > LARGE_PIXELS;
-    const limited =
-      !(await env.RATE_LIMITER.limit({ key: client })).success ||
-      (large && !(await env.RATE_LIMITER_LARGE.limit({ key: client })).success);
-    if (limited) {
-      return textResponse(429, "Rate limit exceeded. Please try again in a minute.", { "Retry-After": "60" });
+    const size = { w: spec.w, h: spec.h };
+    if (!(await env.RATE_LIMITER.limit({ key: client })).success) {
+      return errorImage(429, "Slow down\n100 new images a minute\nTry again in a minute", size, { "Retry-After": "60" });
+    }
+    if (large && !(await env.RATE_LIMITER_LARGE.limit({ key: client })).success) {
+      return errorImage(429, "Slow down\n20 large images a minute\nTry again in a minute", size, { "Retry-After": "60" });
     }
 
     let result;
@@ -153,7 +181,7 @@ export default {
       result = await render(spec, format);
     } catch (e) {
       console.error("render failed", url.pathname, e);
-      return textResponse(500, "Image generation failed");
+      return errorImage(500, "Something went wrong\nTry again", { w: spec.w, h: spec.h });
     }
 
     const response = new Response(result.body, {

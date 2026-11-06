@@ -14,7 +14,7 @@
 //   /300x200@2x.png              -> 600x400 pixels, laid out like 300x200
 //   /300?font-size=40            -> fixed text size in px (before @2x scaling)
 
-import { parseBackground, parseForeground } from "./color";
+import { normalizeHex, TRANSPARENT } from "./color";
 
 export type Format = "svg" | "png" | "jpg" | "gif" | "webp";
 
@@ -44,7 +44,20 @@ export interface ParseResult {
   format: Format;
   spec: ImageSpec | null;
   status?: number;
+  // What went wrong, drawn into the error image. Lines split on "\n": the
+  // first says what is wrong, the rest say how to fix it.
   error?: string;
+  // Size to draw the error image at, so a broken URL keeps its spot in the
+  // page layout. Missing when the size itself is what's wrong.
+  errorSize?: { w: number; h: number };
+}
+
+const FORMAT_EXTENSIONS = new Set(["svg", "png", "jpg", "jpeg", "gif", "webp"]);
+
+// A bad value is echoed back in the error image only when it is short and
+// plain, so the image can't be made to say arbitrary things.
+function shown(value: string): string {
+  return /^[a-z0-9#]{1,12}$/.test(value) ? `: ${value}` : "";
 }
 
 export function parseRequest(url: URL): ParseResult {
@@ -62,7 +75,7 @@ export function parseRequest(url: URL): ParseResult {
   try {
     specStr = decodeURIComponent(raw).toLowerCase();
   } catch {
-    return { format: "svg", spec: null, status: 400, error: "Bad URL encoding" };
+    return { format: "svg", spec: null, status: 400, error: "Bad URL\nCheck the %-codes in it" };
   }
 
   // Format: matches anywhere in the path. Default SVG.
@@ -75,17 +88,11 @@ export function parseRequest(url: URL): ParseResult {
   const sm = specStr.match(/@(\d+)x/);
   if (sm) {
     scale = parseInt(sm[1], 10);
-    if (scale < 1 || scale > 3) {
-      return { format, spec: null, status: 400, error: "Scale must be @2x or @3x" };
-    }
     specStr = specStr.replace(/@\d+x/g, "");
   }
 
   const parts = specStr.split("/");
   const segment = (i: number) => (parts[i] ?? "").split(".")[0];
-
-  const bg = parseBackground(segment(1), DEFAULT_BG);
-  const fg = parseForeground(segment(2), DEFAULT_FG);
 
   // Dimensions: first segment, split on 'x', digits only.
   const dims = (parts[0] ?? "").split("x");
@@ -94,17 +101,39 @@ export function parseRequest(url: URL): ParseResult {
     dims[1] !== undefined ? parseInt(dims[1].replace(/[^\d]/g, ""), 10) || 0 : w;
 
   if (w <= 0 || h <= 0) {
-    return { format, spec: null, status: 404, error: "Invalid dimensions" };
+    return { format, spec: null, status: 404, error: "Bad size\nUse width x height, like 300x150" };
   }
+  const errorSize = { w, h };
+  const fail = (status: number, error: string): ParseResult => ({ format, spec: null, status, error, errorSize });
+
+  if (scale < 1 || scale > 3) return fail(400, "Bad scale\nUse @2x or @3x");
+
+  // Every extension must be a format we make (.bmp used to quietly become SVG).
+  for (const part of parts) {
+    for (const ext of part.split(".").slice(1)) {
+      if (ext && !FORMAT_EXTENSIONS.has(ext)) {
+        return fail(400, `Unknown format${shown(ext)}\nUse png, jpg, gif, webp or svg`);
+      }
+    }
+  }
+
+  // Colors: empty means the default; anything else must be hex (or
+  // "transparent" for the background). Bad colors used to quietly fall back.
+  const bgIn = segment(1);
+  const fgIn = segment(2);
+  const bg = bgIn === "" ? DEFAULT_BG : bgIn === TRANSPARENT ? TRANSPARENT : normalizeHex(bgIn);
+  const fg = fgIn === "" ? DEFAULT_FG : normalizeHex(fgIn);
+  for (const [value, ok] of [[bgIn, bg], [fgIn, fg]] as const) {
+    if (ok === null) return fail(400, `Unknown color${shown(value)}\nUse 3 or 6 hex digits, like 09f`);
+  }
+
   const outScale = format === "svg" ? 1 : scale;
   const max = format === "webp" ? MAX_SIDE_WEBP : MAX_SIDE;
   if (w * outScale > max || h * outScale > max) {
-    const what = format === "webp" ? "WebP size" : "size";
-    const msg =
-      outScale > 1
-        ? `Too big! With @${outScale}x the largest ${what} you can ask for is ${Math.floor(max / outScale)}x${Math.floor(max / outScale)}.`
-        : `Too big! The largest ${what} is ${max}x${max}.`;
-    return { format, spec: null, status: 413, error: msg };
+    const what = format === "webp" ? "WebP " : "";
+    const at = outScale > 1 ? ` at @${outScale}x` : "";
+    const side = Math.floor(max / outScale);
+    return fail(413, `Too big\nLargest ${what}size${at} is ${side} x ${side}`);
   }
 
   // Query values: '?' query wins, then the inline '&' fragment.
@@ -116,10 +145,10 @@ export function parseRequest(url: URL): ParseResult {
   if (text !== null) {
     finalText = cleanText(text);
     if ([...finalText].length > MAX_TEXT_CHARS) {
-      return { format, spec: null, status: 400, error: `Text is too long (the limit is ${MAX_TEXT_CHARS} characters).` };
+      return fail(400, `Text too long\n${MAX_TEXT_CHARS} characters max`);
     }
     if (finalText.split("\n").length > MAX_TEXT_LINES) {
-      return { format, spec: null, status: 400, error: `Too many lines (the limit is ${MAX_TEXT_LINES}).` };
+      return fail(400, `Too many lines\n${MAX_TEXT_LINES} max`);
     }
   }
 
@@ -132,7 +161,7 @@ export function parseRequest(url: URL): ParseResult {
 
   return {
     format,
-    spec: { w, h, scale, bg, fg, text: finalText, customText: text !== null, fontSize },
+    spec: { w, h, scale, bg: bg!, fg: fg!, text: finalText, customText: text !== null, fontSize },
   };
 }
 

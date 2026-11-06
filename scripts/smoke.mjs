@@ -62,6 +62,13 @@ check("501-char text rejected", (await get(`/300?text=${"a".repeat(501)}`)).res.
 check("3001 rejected", (await get(`/3001?text=${t}`)).res.status === 413);
 check("1600@2x png rejected", (await get(`/1600@2x.png?text=${t}`)).res.status === 413);
 check("bad encoding is 400", (await get(`/300%E0`)).res.status === 400);
+{
+  const { res } = await get(`/300x150/zzz/fff?text=${t}`);
+  check(
+    "bad color is an error image",
+    res.status === 400 && (res.headers.get("content-type") || "").startsWith("image/svg+xml") && !!res.headers.get("x-placehold-error"),
+  );
+}
 check("homepage", (await get("/")).res.status === 200);
 check("og image", (await get("/og.png")).res.status === 200);
 check("POST rejected", (await get(`/300?text=${t}`, { method: "POST" })).res.status === 405);

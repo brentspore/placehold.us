@@ -89,3 +89,75 @@ font-weight: bold;
 ${fontFace}${rect}<text x="50%" y="50%" font-family="${FONT_STACK}" font-size="${size}" font-weight="bold" fill="#${fg}" text-anchor="middle" dominant-baseline="middle">${tspans(spec.text, size)}</text>
 </svg>`;
 }
+
+// Error images. A bad URL inside <img> used to show only the browser's broken
+// image icon, because the error was plain text. Now it gets an SVG at the
+// requested size (so the page layout holds) that says what's wrong, in pink
+// with a dashed border so it can't be mistaken for a working placeholder.
+export const ERROR_FALLBACK_SIZE = { w: 300, h: 150 };
+const ERROR_MAX_SIDE = 4000; // SVG is cheap at any size; this just bounds layout
+const ERROR_BG = "fdeaf3";
+const ERROR_FG = "b00d62";
+const ERROR_BORDER = "e8117f";
+
+// The brand font is condensed: a bold character is about 0.42em wide. 0.5
+// leaves a margin so a line never touches the border.
+const CHAR_EM = 0.5;
+
+export function errorSvg(message: string, size: { w: number; h: number } = ERROR_FALLBACK_SIZE): string {
+  const w = Math.min(Math.max(Math.round(size.w), 1), ERROR_MAX_SIDE);
+  const h = Math.min(Math.max(Math.round(size.h), 1), ERROR_MAX_SIDE);
+  const [title, ...hints] = cleanMessage(message).split("\n");
+  const fitWidth = (line: string) => (w * 0.85) / (Math.max([...line].length, 1) * CHAR_EM);
+
+  // The title (what's wrong) is big; the hints (how to fix it) are smaller.
+  let titleSize = Math.min(fitWidth(title), h * 0.3);
+  let hintSize = hints.length ? Math.min(...hints.map(fitWidth), titleSize * 0.6) : 0;
+  // Everything together must fit in 80% of the height.
+  const block = titleSize * 1.2 + hints.length * hintSize * 1.3;
+  if (block > h * 0.8) {
+    const k = (h * 0.8) / block;
+    titleSize *= k;
+    hintSize *= k;
+  }
+  titleSize = Math.max(titleSize, 6);
+  hintSize = Math.max(hintSize, 5);
+
+  const lines = [
+    { text: title, size: titleSize, step: titleSize * 1.2 },
+    ...hints.map((t) => ({ text: t, size: hintSize, step: hintSize * 1.3 })),
+  ];
+  const total = lines.reduce((sum, l) => sum + l.step, 0);
+  let y = (h - total) / 2;
+  const texts = lines
+    .map((l) => {
+      const cy = y + l.step / 2;
+      y += l.step;
+      return `<text x="50%" y="${round(cy)}" font-size="${round(l.size)}">${esc(l.text)}</text>`;
+    })
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+<defs><style type="text/css">
+@font-face {
+font-family: "${FONT_FAMILY}";
+src: url("data:font/woff2;base64,${fontSubsetBase64(title + hints.join(""))}") format("woff2");
+font-weight: bold;
+}
+</style></defs><rect width="100%" height="100%" fill="#${ERROR_BG}"/>
+<rect x="1" y="1" width="${Math.max(w - 2, 0)}" height="${Math.max(h - 2, 0)}" fill="none" stroke="#${ERROR_BORDER}" stroke-width="2" stroke-dasharray="6 4"/>
+<g font-family="${FONT_STACK}" font-weight="bold" fill="#${ERROR_FG}" text-anchor="middle" dominant-baseline="middle">
+${texts}
+</g>
+</svg>`;
+}
+
+function round(n: number): number {
+  return Math.round(n * 10) / 10;
+}
+
+// Messages are written by us, but may echo a short value from the URL.
+function cleanMessage(message: string): string {
+  return message.replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, "").slice(0, 200);
+}

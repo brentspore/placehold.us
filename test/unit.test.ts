@@ -4,8 +4,8 @@
 
 import { describe, it, expect } from "vitest";
 import { parseRequest, cacheKeyFor, cleanText, MAX_SIDE, MAX_SIDE_WEBP } from "../src/parse";
-import { normalizeHex, parseBackground } from "../src/color";
-import { buildSvg, fontSize } from "../src/svg";
+import { normalizeHex } from "../src/color";
+import { buildSvg, errorSvg, fontSize } from "../src/svg";
 import { canonicalRedirect, isImagePath, rateLimitKey } from "../src/routing";
 
 const parse = (path: string) => parseRequest(new URL("https://placehold.us" + path));
@@ -89,9 +89,19 @@ describe("colors", () => {
   it("rejects non-hex and odd lengths", () => {
     for (const bad of ["zzz", "12345", "1234", "", '"><svg', "0099ff00"]) expect(normalizeHex(bad)).toBeNull();
   });
-  it("invalid colors fall back to defaults", () => {
-    expect(parse("/300/zzz/qqq").spec).toMatchObject({ bg: "cccccc", fg: "969696" });
-    expect(parseBackground("transparent", "x")).toBe("transparent");
+  it("invalid colors are an error that names the color (they used to quietly fall back)", () => {
+    const r = parse("/300x200/zzz/fff");
+    expect(r.spec).toBeNull();
+    expect(r.status).toBe(400);
+    expect(r.error).toContain("Unknown color: zzz");
+    expect(r.errorSize).toEqual({ w: 300, h: 200 });
+    expect(parse("/300/09f/qqq").error).toContain("Unknown color: qqq");
+    expect(parse("/300/1234").status).toBe(400);
+  });
+  it("empty color segments still mean the defaults", () => {
+    expect(parse("/300/").spec).toMatchObject({ bg: "cccccc", fg: "969696" });
+    expect(parse("/300//fff").spec).toMatchObject({ bg: "cccccc", fg: "ffffff" });
+    expect(parse("/300/transparent").spec).toMatchObject({ bg: "transparent" });
   });
 });
 
@@ -114,9 +124,10 @@ describe("text cleaning", () => {
 describe("SVG output is safe", () => {
   it("markup in the color slot never reaches the SVG (XSS regression, 2026-11-03)", () => {
     const r = parse('/300/%22%3E%3Csvg%20onload=%22alert(1)%22%20a=%22');
-    const svg = buildSvg(r.spec!, { embedFont: false });
+    expect(r.spec).toBeNull();
+    const svg = errorSvg(r.error!, r.errorSize);
     expect(svg).not.toContain("onload");
-    expect(svg).toContain('fill="#cccccc"');
+    expect(svg).toContain("Unknown color<");
   });
   it("text is escaped", () => {
     const r = parse("/300?text=" + encodeURIComponent(`<script>"&'`));
@@ -184,5 +195,40 @@ describe("routing", () => {
     expect(isImagePath("/")).toBe(false);
     expect(isImagePath("/og.png")).toBe(false);
     expect(isImagePath("/privacypolicy")).toBe(false);
+  });
+});
+
+describe("error images", () => {
+  it("unknown extensions are an error (.bmp used to quietly become SVG)", () => {
+    const r = parse("/300/09f/fff.bmp");
+    expect(r.status).toBe(400);
+    expect(r.error).toContain("Unknown format: bmp");
+    expect(parse("/300.svg").spec).not.toBeNull();
+    expect(parse("/300.jpeg").spec).not.toBeNull();
+  });
+  it("are drawn at the requested size, capped for layout", () => {
+    expect(errorSvg("x", { w: 4000, h: 200 })).toContain('width="4000" height="200"');
+    expect(errorSvg("x", { w: 99999, h: 10 })).toContain('width="4000" height="10"');
+    expect(errorSvg("x")).toContain('width="300" height="150"');
+  });
+  it("too-big errors keep their size and say the limit", () => {
+    const r = parse("/4000x200");
+    expect(r.status).toBe(413);
+    expect(r.errorSize).toEqual({ w: 4000, h: 200 });
+    expect(r.error).toBe("Too big\nLargest size is 3000 x 3000");
+    expect(parse("/800@2x.webp").error).toBe("Too big\nLargest WebP size at @2x is 750 x 750");
+  });
+  it("bad sizes have no size to keep", () => {
+    expect(parse("/300x0").errorSize).toBeUndefined();
+  });
+  it("only short plain values are echoed back", () => {
+    expect(parse("/300/" + "a".repeat(13)).error).toMatch(/^Unknown color\n/);
+    expect(parse("/300/hello world").error).toMatch(/^Unknown color\n/);
+  });
+  it("messages are escaped and look unlike a real placeholder", () => {
+    const svg = errorSvg("<b>&", { w: 300, h: 150 });
+    expect(svg).toContain("&lt;b&gt;&amp;");
+    expect(svg).toContain('stroke-dasharray="6 4"');
+    expect(svg).toContain('fill="#fdeaf3"');
   });
 });
