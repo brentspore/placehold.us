@@ -52,3 +52,13 @@ If a decision should apply across multiple projects, record it in `~/.ai/memory/
 
 **Revisit if:** Legit heavy users hit 429s (raise the large limit first).
 
+### 2026-11-05 — Bad URLs get an error image, not a fallback
+
+**Context:** Errors were plain text, so inside an `<img>` they showed only the browser's broken-image icon. Bad colors and unknown extensions were quietly replaced (gray, SVG), so nobody learned the URL was wrong.
+
+**Decision:** Every image error returns an SVG drawn at the requested size that says what is wrong and how to fix it (pink, dashed border). Status codes stay errors. Non-hex colors and unknown extensions are errors, not fallbacks. Only short plain values are echoed into the image.
+
+**Rationale:** Owner approved. The image is the UI most users see; the landing page is visited once. Named colors never worked on the old service (it always prefixed `#`), so no previously-correct URL changes.
+
+**Revisit if:** Someone reports a long-standing embed turning pink and wants the old fallback back for that case.
+
