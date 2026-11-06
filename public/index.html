@@ -57,7 +57,7 @@
 		gtag('config', 'G-73WR5GHTDB');
 	</script>
 
-	<link href="/css/style.css?v=6" rel="stylesheet">
+	<link href="/css/style.css?v=7" rel="stylesheet">
 	<style>
 		/* Prevent horizontal scroll */
 		* {
@@ -153,14 +153,13 @@
 <body>
 <div id="wrapper">
 	<div id="top">
-		<h1>Welcome to <em>placehold.us</em><br>A quick and simple image placeholder service.</h1>
+		<h1><em>placehold.us</em><br>Placeholder images from a URL.</h1>
 	</div>
 <div id="content-left">
-	How does it work? Just put your image size after our URL and you'll get a placeholder.
-	<div class="url">Like this: <a href="/350x150">https://placehold.us/350x150</a></div>
-	You can also use it in your code, like this:<br>
-	<div class="url">&lt;img src="https://placehold.us/350x150"&gt;</div>
-	Have fun!
+	Put a size after our URL and you get a placeholder image back.
+	<div class="url"><a href="/350x150">https://placehold.us/350x150</a></div>
+	Or use it in your code:
+	<div class="url"><code>&lt;img src="https://placehold.us/350x150"&gt;</code></div>
 </div>
 <div id="content-right">
 	<div id="images">
@@ -171,43 +170,48 @@
 	</div>
 </div>
 <div class="clear"></div>
+<div id="grammar">
+	<h2>The whole URL</h2>
+	<code class="grammar-line"><span>placehold.us/</span><wbr><span><b>{width}</b>x<b>{height}</b><i>@2x</i>/</span><wbr><span><b>{background}</b>/</span><wbr><span><b>{text color}</b>.<b>{format}</b></span><wbr><span>?text=<b>{text}</b></span><wbr><span>&amp;font-size=<b>{px}</b></span></code>
+	<p>Only the size is needed. Everything after it is optional. If something in a URL is wrong, you get a pink image that says what to fix instead of a broken one.</p>
+</div>
 <div id="docs">
 		<div id="size" class="panel">
 			<h2>Size</h2>
-			<p>width x height</p>
+			<p class="syntax">width x height</p>
 			<p>Height is optional. Leave it off and you get a square. The largest size is 3000 x 3000, or 1500 x 1500 for WebP.</p>
-			<p>Example: <a href="/300">https://placehold.us/300</a><br>
+			<p>Example: <a href="/300">placehold.us/300</a><br>
 			<strong>Note: Size must be the first part of the URL</strong></p>
 			<p>Each image is cached for 30 days, so repeat loads are instant. Each visitor can make 100 new images a minute, and 20 a minute over one megapixel. Cached images don't count.</p>
 		</div>
 		<div id="color" class="panel">
 			<h2>Colors</h2>
-			<p>background color / text color</p>
+			<p class="syntax">background color / text color</p>
 			<p>Colors are hex codes, without the #. Three digits work too (09f is 0099ff). Colors always follow the size.<br>
-			<a href="/250/ffffff/000000" class="hi">https://placehold.us/250/ffffff/000000</a><br>
+			<a href="/250/ffffff/000000" class="hi">placehold.us/250/ffffff/000000</a><br>
 			<strong>not</strong><br>
-			<a href="/ffffff/250/000000" class="low">https://placehold.us/ffffff/250/000000</a></p>
+			<a href="/ffffff/250/000000" class="low">placehold.us/ffffff/250/000000</a></p>
 			<p>For no background at all, use transparent. It works in SVG, PNG, GIF and WebP. JPG has no transparency, so it gets white.<br>
-			<a href="/250/transparent/e8117f.png">https://placehold.us/250/transparent/e8117f.png</a></p>
+			<a href="/250/transparent/e8117f.png">placehold.us/250/transparent/e8117f.png</a></p>
 		</div>
 		<div id="text" class="panel">
 			<h2>Custom Text</h2>
-			<p>?text=Hello+World</p>
+			<p class="syntax">?text=Hello+World</p>
 			<p>The default text is the image size, like "300 x 250". Put your own at the end of the URL, up to 500 characters. Spaces become +, and | starts a new line. PNG, JPG, GIF and WebP can draw English and most accented letters. For other languages, use SVG.</p>
-			<p><a href="/300?text=placehold.us+rocks!">https://placehold.us/300?text=placehold.us+rocks!</a><br>
-			<a href="/300?text=Line+one|Line+two">https://placehold.us/300?text=Line+one|Line+two</a></p>
+			<p><a href="/300?text=placehold.us+rocks!">placehold.us/300?text=placehold.us+rocks!</a><br>
+			<a href="/300?text=Line+one|Line+two">placehold.us/300?text=Line+one|Line+two</a></p>
 			<p>Text sizes itself to fit. To pick a size in pixels, add font-size.<br>
-			<a href="/300?text=Big&amp;font-size=90">https://placehold.us/300?text=Big&amp;font-size=90</a></p>
+			<a href="/300?text=Big&amp;font-size=90">placehold.us/300?text=Big&amp;font-size=90</a></p>
 		</div>
 		<div id="format" class="panel">
 			<h2>Image Formats</h2>
-			<p>.svg, .png, .jpg, .gif, .webp</p>
+			<p class="syntax">.svg, .png, .jpg, .gif, .webp</p>
 			<p>SVG is the default. It stays sharp at any size, and you don't need an extension for it. For any other format, add an extension. It can go at the end of any part of the URL.</p>
-			<p><a href="/300.png/09f/fff">https://placehold.us/300.png/09f/fff</a><br>
-			<a href="/300/09f.jpg/fff">https://placehold.us/300/09f.jpg/fff</a><br>
-			<a href="/300/09f/fff.webp">https://placehold.us/300/09f/fff.webp</a></p>
+			<p><a href="/300.png/09f/fff">placehold.us/300.png/09f/fff</a><br>
+			<a href="/300/09f.jpg/fff">placehold.us/300/09f.jpg/fff</a><br>
+			<a href="/300/09f/fff.webp">placehold.us/300/09f/fff.webp</a></p>
 			<p>For retina screens, add @2x or @3x. You get twice (or three times) the pixels with the same layout.<br>
-			<a href="/300x150@2x.png">https://placehold.us/300x150@2x.png</a></p>
+			<a href="/300x150@2x.png">placehold.us/300x150@2x.png</a></p>
 		</div>
 </div>
 <div id="more">
@@ -261,6 +265,35 @@
 			grid.appendChild(a);
 		});
 	})();
+</script>
+<script>
+// Copy buttons next to every example URL. Added by script so the page reads
+// fine without it; the links still open the image.
+(function () {
+	if (!navigator.clipboard) return;
+	function addButton(after, text) {
+		var b = document.createElement('button');
+		b.type = 'button';
+		b.className = 'copy';
+		b.textContent = 'Copy';
+		b.setAttribute('aria-label', 'Copy ' + text);
+		b.addEventListener('click', function () {
+			navigator.clipboard.writeText(text).then(function () {
+				b.textContent = 'Copied';
+				b.classList.add('done');
+				setTimeout(function () { b.textContent = 'Copy'; b.classList.remove('done'); }, 1500);
+				if (window.gtag) gtag('event', 'copy_url');
+			});
+		});
+		after.insertAdjacentElement('afterend', b);
+	}
+	document.querySelectorAll('#docs p a, .url a').forEach(function (a) {
+		addButton(a, a.href);
+	});
+	document.querySelectorAll('.url code').forEach(function (c) {
+		addButton(c, c.textContent);
+	});
+})();
 </script>
 <script src="/tip-jar.js?v=1" defer></script>
 </body>

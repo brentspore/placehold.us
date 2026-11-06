@@ -88,11 +88,20 @@ em {
 	text-transform: uppercase;
 }
 
+/* Body text in a regular system font: the brand font only comes in bold, so
+   it stays on the header, headings and intro, where it reads as the brand. */
 p {
 	margin-bottom: 15px;
-	font-size: 14px;
-	color: #222;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	font-size: 15px;
+	color: #333;
 	line-height: 1.6em;
+}
+p.syntax {
+	font-family: ui-monospace, Menlo, Consolas, monospace;
+	font-size: 14px;
+	color: #E8117F;
+	margin-bottom: 10px;
 }
 
 p strong {
@@ -101,26 +110,19 @@ p strong {
 
 p a {
 	background: #222;
-	padding: 2px;
+	padding: 2px 4px;
 	color: white;
 	text-decoration: none;
-	font-weight: bold;
+	font-family: ui-monospace, Menlo, Consolas, monospace;
+	font-size: 13px;
 }
 
 p a.low {
 	background: #aaa;
-	padding: 2px;
-	color: white;
-	text-decoration: none;
-	font-weight: bold;
 }
 
 p a.hi {
 	background: #E8117F;
-	padding: 2px;
-	color: white;
-	text-decoration: none;
-	font-weight: bold;
 }
 
 p a:hover {
@@ -151,12 +153,14 @@ p a:hover {
 }
 .url {
 	border: 1px dotted #aaa;
-	padding: 25px;
+	padding: 22px 15px;
 	text-align:center;
 	display: block;
-	margin: 25px 0;
-	font-family: "Courier", serif;
+	margin: 18px 0 25px;
+	font-family: ui-monospace, Menlo, Consolas, monospace;
 	font-size: 14px;
+	font-weight: normal;
+	line-height: 1.5em;
 }
 
 .url a {
@@ -168,6 +172,62 @@ p a:hover {
 
 .url a:hover {
 	background: #E8117F;
+}
+
+/* Copy buttons, added next to each example URL by script */
+button.copy {
+	font-family: 'AauxOffice', Arial, sans-serif;
+	font-weight: bold;
+	font-size: 11px;
+	line-height: 1;
+	color: #fff;
+	background: #aaa;
+	border: 0;
+	padding: 4px 6px;
+	margin-left: 6px;
+	cursor: pointer;
+	vertical-align: 1px;
+}
+button.copy:hover,
+button.copy:focus-visible {
+	background: #E8117F;
+}
+button.copy:focus-visible {
+	outline: 2px solid #222;
+	outline-offset: 1px;
+}
+button.copy.done {
+	background: #222;
+}
+
+/* "The whole URL": every option on one line */
+#grammar {
+	margin-top: 25px;
+	border-top: 1px dotted #aaa;
+	padding-top: 25px;
+}
+#grammar h2 {
+	margin-bottom: 12px;
+}
+.grammar-line {
+	display: block;
+	font-family: ui-monospace, Menlo, Consolas, monospace;
+	font-size: 15px;
+	line-height: 1.6em;
+	background: #f4f4f4;
+	padding: 14px 16px;
+	margin-bottom: 12px;
+}
+.grammar-line span {
+	white-space: nowrap;
+}
+.grammar-line b {
+	color: #E8117F;
+	font-weight: bold;
+}
+.grammar-line i {
+	color: #888;
+	font-style: normal;
 }
 
 /* The four how-to sections, always visible: two columns, stacked on phones. */
@@ -187,11 +247,15 @@ p a:hover {
 	margin-bottom: 8px;
 }
 #docs p a {
-	overflow-wrap: anywhere;
+	white-space: nowrap;
 }
 @media screen and (max-width: 768px) {
 	#docs {
 		grid-template-columns: 1fr;
+	}
+	#docs p a {
+		white-space: normal;
+		overflow-wrap: anywhere;
 	}
 }
 #images {
